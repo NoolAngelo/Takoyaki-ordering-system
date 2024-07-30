@@ -241,6 +241,7 @@ public class TakoyakiOrderingSystem {
                     break;
             }
             scan.close();
+            
             scan2.close();
         }
     }
