@@ -1,196 +1,189 @@
-import java.util.*;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TakoyakiOrderingSystem {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        OrderManager orderManager = new OrderManager();
-        UI ui = new UI(scanner, orderManager);
-        ui.start();
-        scanner.close();
-    }
-}
+    private static final Scanner scanner = new Scanner(System.in);
+    private double totalCost = 0.0;
+    private List<OrderItem> orderItems = new ArrayList<>();
 
-class UI {
-    private final Scanner scanner;
-    private final OrderManager orderManager;
+    private static class OrderItem {
+        String name;
+        int quantity;
+        double price;
 
-    public UI(Scanner scanner, OrderManager orderManager) {
-        this.scanner = scanner;
-        this.orderManager = orderManager;
+        OrderItem(String name, int quantity, double price) {
+            this.name = name;
+            this.quantity = quantity;
+            this.price = price;
+        }
     }
 
-    public void start() {
+    private static class MenuItem {
+        String name;
+        double price;
+
+        MenuItem(String name, double price) {
+            this.name = name;
+            this.price = price;
+        }
+    }
+
+    private static final MenuItem[] TAKOYAKI_MENU = {
+            new MenuItem("Classic", 55.00),
+            new MenuItem("Octopus", 65.00),
+            new MenuItem("Green Onion", 55.00),
+            new MenuItem("Cheese", 55.00),
+            new MenuItem("Bacon", 65.00),
+            new MenuItem("Crab", 65.00)
+    };
+
+    private static final MenuItem[] DRINKS_MENU = {
+            new MenuItem("Coke Original 325ml", 34.10),
+            new MenuItem("Coke Zero 325ml", 34.50),
+            new MenuItem("Sprite 325ml", 34.10),
+            new MenuItem("Royal 330ml", 31.10),
+            new MenuItem("Pepsi 320ml", 26.95),
+            new MenuItem("Mountain Dew 320ml", 26.95)
+    };
+
+    public void displayMenu(MenuItem[] menu, String title) {
+        System.out.println("\n\t\t\t\t+=======================================+");
+        System.out.println("\t\t\t\t            " + title);
+        System.out.println("\t\t\t\t+=======================================+");
+        for (int i = 0; i < menu.length; i++) {
+            System.out.printf("\t\t\t\t %d. %-25s Php. %.2f%n", i + 1, menu[i].name, menu[i].price);
+        }
+        System.out.println("\t\t\t\t " + (menu.length + 1) + ". CANCEL");
+        System.out.println("\t\t\t\t+=======================================+");
+    }
+
+    public void orderItem(MenuItem[] menu, String type) {
+        displayMenu(menu, type + " MENU");
+        int choice = getIntInput(
+                "Select a " + type.toLowerCase() + " (1-" + menu.length + ") or " + (menu.length + 1) + " to cancel: ",
+                1, menu.length + 1);
+
+        if (choice == menu.length + 1) {
+            System.out.println(type + " order canceled.");
+            return;
+        }
+
+        MenuItem selectedItem = menu[choice - 1];
+        int quantity = getIntInput("Enter quantity: ", 1, 100);
+
+        double itemCost = selectedItem.price * quantity;
+        totalCost += itemCost;
+        orderItems.add(new OrderItem(selectedItem.name, quantity, itemCost));
+
+        System.out.printf("Added %d %s to your order. Cost: Php. %.2f%n", quantity, selectedItem.name, itemCost);
+        System.out.printf("Current total: Php. %.2f%n", totalCost);
+    }
+
+    public void startOrdering() {
         while (true) {
-            displayMainMenu();
-            int choice = getIntInput("Enter your choice: ", 1, 3);
+            System.out.println("\nWhat would you like to order?");
+            System.out.println("1. Takoyaki");
+            System.out.println("2. Drinks");
+            System.out.println("3. View Current Order");
+            System.out.println("4. Finish and Pay");
+            int choice = getIntInput("Your choice: ", 1, 4);
+
             switch (choice) {
                 case 1:
-                    orderTakoyaki();
+                    orderItem(TAKOYAKI_MENU, "TAKOYAKI");
                     break;
                 case 2:
-                    orderDrink();
+                    orderItem(DRINKS_MENU, "DRINKS");
                     break;
                 case 3:
-                    checkout();
+                    viewCurrentOrder();
+                    break;
+                case 4:
+                    finishAndPay();
                     return;
             }
         }
     }
 
-    private void displayMainMenu() {
-        System.out.println("\n===== GELO'S TAKOYAKI =====");
-        System.out.println("1. Order Takoyaki");
-        System.out.println("2. Order Drink");
-        System.out.println("3. Checkout");
+    private void viewCurrentOrder() {
+        if (orderItems.isEmpty()) {
+            System.out.println("Your order is empty.");
+            return;
+        }
+        System.out.println("\nCurrent Order:");
+        for (OrderItem item : orderItems) {
+            System.out.printf("%d x %s - Php. %.2f%n", item.quantity, item.name, item.price);
+        }
+        System.out.printf("Total: Php. %.2f%n", totalCost);
     }
 
-    private void orderTakoyaki() {
-        displayTakoyakiMenu();
-        int choice = getIntInput("Select a flavor (1-6): ", 1, 6);
-        TakoyakiFlavor flavor = TakoyakiFlavor.values()[choice - 1];
-        int quantity = getIntInput("Enter quantity: ", 1, 100);
-        orderManager.addTakoyaki(flavor, quantity);
-        System.out.println("Added to order: " + quantity + " " + flavor.getName());
-    }
-
-    private void orderDrink() {
-        displayDrinkMenu();
-        int choice = getIntInput("Select a drink (1-6): ", 1, 6);
-        Drink drink = Drink.values()[choice - 1];
-        int quantity = getIntInput("Enter quantity: ", 1, 100);
-        orderManager.addDrink(drink, quantity);
-        System.out.println("Added to order: " + quantity + " " + drink.getName());
-    }
-
-    private void checkout() {
-        System.out.println("\n===== Your Order =====");
-        orderManager.displayOrder();
-        System.out.printf("Total: Php %.2f\n", orderManager.getTotal());
+    private void finishAndPay() {
+        if (orderItems.isEmpty()) {
+            System.out.println("Your order is empty. Nothing to pay.");
+            return;
+        }
+        viewCurrentOrder();
+        double payment = getDoubleInput("Enter payment amount: ", totalCost, 10000);
+        double change = payment - totalCost;
+        System.out.printf("Payment received: Php. %.2f%n", payment);
+        System.out.printf("Change: Php. %.2f%n", change);
         System.out.println("Thank you for your order!");
-    }
-
-    private void displayTakoyakiMenu() {
-        System.out.println("\n===== TAKOYAKI MENU =====");
-        for (TakoyakiFlavor flavor : TakoyakiFlavor.values()) {
-            System.out.printf("%d. %-20s Php %.2f\n", flavor.ordinal() + 1, flavor.getName(), flavor.getPrice());
-        }
-    }
-
-    private void displayDrinkMenu() {
-        System.out.println("\n===== DRINKS MENU =====");
-        for (Drink drink : Drink.values()) {
-            System.out.printf("%d. %-20s Php %.2f\n", drink.ordinal() + 1, drink.getName(), drink.getPrice());
-        }
     }
 
     private int getIntInput(String prompt, int min, int max) {
         while (true) {
             try {
                 System.out.print(prompt);
-                int input = Integer.parseInt(scanner.nextLine());
+                int input = scanner.nextInt();
                 if (input >= min && input <= max) {
                     return input;
+                } else {
+                    System.out.println("Please enter a number between " + min + " and " + max + ".");
                 }
-                System.out.println("Please enter a number between " + min + " and " + max);
-            } catch (NumberFormatException e) {
+            } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a number.");
+                scanner.next(); // Clear the invalid input
             }
         }
     }
-}
 
-class OrderManager {
-    private final List<OrderItem> orderItems = new ArrayList<>();
-
-    public void addTakoyaki(TakoyakiFlavor flavor, int quantity) {
-        orderItems.add(new OrderItem(flavor.getName(), flavor.getPrice(), quantity));
-    }
-
-    public void addDrink(Drink drink, int quantity) {
-        orderItems.add(new OrderItem(drink.getName(), drink.getPrice(), quantity));
-    }
-
-    public void displayOrder() {
-        for (OrderItem item : orderItems) {
-            System.out.printf("%-20s x%d  Php %.2f\n", item.getName(), item.getQuantity(), item.getTotal());
+    private double getDoubleInput(String prompt, double min, double max) {
+        while (true) {
+            try {
+                System.out.print(prompt);
+                double input = scanner.nextDouble();
+                if (input >= min && input <= max) {
+                    return input;
+                } else {
+                    System.out.printf("Please enter a number between %.2f and %.2f.%n", min, max);
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.next(); // Clear the invalid input
+            }
         }
     }
 
-    public double getTotal() {
-        return orderItems.stream().mapToDouble(OrderItem::getTotal).sum();
-    }
-}
+    public static void main(String[] args) {
+        System.out.println("\t\t\t\t+=======================================+");
+        System.out.println("\t\t\t\t                                         ");
+        System.out.println("\t\t\t\t             GELO'S TAKOYAKI             ");
+        System.out.println("\t\t\t\t                                         ");
+        System.out.println("\t\t\t\t            Press Enter to Order         ");
+        System.out.println("\t\t\t\t          Press Q to Quit Program        ");
+        System.out.println("\t\t\t\t+=======================================+");
 
-class OrderItem {
-    private final String name;
-    private final double price;
-    private final int quantity;
+        String input = scanner.nextLine();
 
-    public OrderItem(String name, double price, int quantity) {
-        this.name = name;
-        this.price = price;
-        this.quantity = quantity;
-    }
+        if (input.equalsIgnoreCase("q")) {
+            System.out.println("Program terminated.");
+        } else {
+            TakoyakiOrderingSystem orderingSystem = new TakoyakiOrderingSystem();
+            orderingSystem.startOrdering();
+        }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public double getTotal() {
-        return price * quantity;
-    }
-}
-
-enum TakoyakiFlavor {
-    CLASSIC("Classic", 55.00),
-    OCTOPUS("Octopus", 65.00),
-    GREEN_ONION("Green Onion", 55.00),
-    CHEESE("Cheese", 55.00),
-    BACON("Bacon", 65.00),
-    CRAB("Crab", 65.00);
-
-    private final String name;
-    private final double price;
-
-    TakoyakiFlavor(String name, double price) {
-        this.name = name;
-        this.price = price;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-}
-
-enum Drink {
-    COKE_ORIGINAL("Coke Original 325ml", 34.10),
-    COKE_ZERO("Coke Zero 325ml", 34.50),
-    SPRITE("Sprite 325ml", 34.10),
-    ROYAL("Royal 330ml", 31.10),
-    PEPSI("Pepsi 320ml", 26.95),
-    MOUNTAIN_DEW("Mountain Dew 320ml", 26.95);
-
-    private final String name;
-    private final double price;
-
-    Drink(String name, double price) {
-        this.name = name;
-        this.price = price;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public double getPrice() {
-        return price;
+        scanner.close();
     }
 }
