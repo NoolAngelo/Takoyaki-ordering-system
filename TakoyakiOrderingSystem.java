@@ -1,7 +1,9 @@
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Scanner;
 
 public class TakoyakiOrderingSystem {
 
@@ -25,6 +27,10 @@ public class TakoyakiOrderingSystem {
     private static final double[] DRINK_PRICES = {
             34.10, 34.50, 34.10, 31.10, 26.95, 26.95
     };
+
+    // Magic numbers as constants
+    private static final int MAX_QUANTITY = 100;
+    private static final double MAX_PAYMENT = 10000.0;
 
     // Class to represent order items
     private static class OrderItem {
@@ -79,31 +85,37 @@ public class TakoyakiOrderingSystem {
         System.out.println("\t\t\t\t+=======================================+");
     }
 
+    // Generalized method for ordering items (Takoyaki or Drink)
+    private void orderItem(String[] names, double[] prices, String itemType) {
+        System.out.printf("Select a %s (1-%d) or %d to cancel: ", itemType, names.length, names.length + 1);
+        int choice = getIntInput(1, names.length + 1);
+        if (choice <= names.length) {
+            int index = choice - 1;
+            System.out.printf("%s Quantity: ", itemType);
+            int quantity = getIntInput(1, MAX_QUANTITY);
+            if (quantity > 0) {
+                OrderItem item = new OrderItem(names[index], quantity, prices[index]);
+                orderItems.add(item);
+                totalCost += item.totalPrice;
+                System.out.printf("You've added %d %s to your order for Php. %.2f\n", quantity, names[index],
+                        item.totalPrice);
+            } else {
+                System.out.println(itemType + " order canceled.");
+            }
+        } else {
+            System.out.println(itemType + " order canceled.");
+        }
+    }
+
     public void orderTakoyaki(int flavorIndex) {
-        String flavor = TAKOYAKI_FLAVORS[flavorIndex];
-        double price = TAKOYAKI_PRICES[flavorIndex];
-
-        System.out.println("You selected " + flavor + " Takoyaki.");
-        System.out.println();
-        System.out.print("Order Quantity: ");
-        int orderQuantity = getIntInput(1, 100);
-
-        // Create new order item and add to the list
-        OrderItem item = new OrderItem(flavor, orderQuantity, price);
-        orderItems.add(item);
-        totalCost += item.totalPrice;
-
-        System.out.printf("Total cost for %s: Php. %.2f Added to Order%n", flavor, item.totalPrice);
-        System.out.printf("Overall order cost: Php. %.2f%n", totalCost);
-        System.out.println();
-
+        // Use the generalized method for takoyaki
+        orderItem(TAKOYAKI_FLAVORS, TAKOYAKI_PRICES, "Takoyaki");
+        System.out.printf("Overall order cost: Php. %.2f\n\n", totalCost);
         handleAdditionalItems();
     }
 
     private void handleAdditionalItems() {
-        // Input validation for "Yes" or "No" choices
         String addItems = getYesNoInput("Would you like to add additional items? (Y/N): ");
-
         if (addItems.equals("Y")) {
             do {
                 System.out.println();
@@ -114,91 +126,23 @@ public class TakoyakiOrderingSystem {
                 System.out.println();
                 System.out.print("Your choice: ");
                 int choice = getIntInput(1, 3);
-
                 switch (choice) {
                     case 1:
-                        orderDrink();
+                        displayDrinks(); // Show drinks menu before ordering
+                        orderItem(DRINK_NAMES, DRINK_PRICES, "Drink");
                         break;
                     case 2:
-                        displayMenu();
-                        System.out.print("Your choice for the new takoyaki order (1-" +
-                                TAKOYAKI_FLAVORS.length + ") or " +
-                                (TAKOYAKI_FLAVORS.length + 1) + " to cancel: ");
-                        int newOrderChoice = getIntInput(1, TAKOYAKI_FLAVORS.length + 1);
-
-                        if (newOrderChoice <= TAKOYAKI_FLAVORS.length) {
-                            addTakoyakiToOrder(newOrderChoice - 1);
-                        } else {
-                            System.out.println("Order canceled.");
-                        }
+                        orderItem(TAKOYAKI_FLAVORS, TAKOYAKI_PRICES, "Takoyaki");
                         break;
                     case 3:
                         displayCurrentOrder();
                         break;
                 }
-
-                // After adding items, ask if the user wants to add more
-                System.out.println();
-                System.out.printf("Overall order cost: Php. %.2f%n", totalCost);
-                System.out.println();
-
+                System.out.printf("\nOverall order cost: Php. %.2f\n\n", totalCost);
                 addItems = getYesNoInput("Would you like to add more items? (Y/N): ");
-
             } while (addItems.equals("Y"));
         }
-
-        // Payment handling
         processPayment();
-    }
-
-    private void orderDrink() {
-        displayDrinks();
-        System.out.print("Select a drink (1-" + DRINK_NAMES.length + ") or " +
-                (DRINK_NAMES.length + 1) + " to cancel: ");
-        int drinkChoice = getIntInput(1, DRINK_NAMES.length + 1);
-
-        if (drinkChoice <= DRINK_NAMES.length) {
-            int drinkIndex = drinkChoice - 1;
-            System.out.print("Drink Quantity: ");
-            int drinkQuantity = getIntInput(1, 100);
-
-            if (drinkQuantity > 0) {
-                OrderItem drinkItem = new OrderItem(
-                        DRINK_NAMES[drinkIndex],
-                        drinkQuantity,
-                        DRINK_PRICES[drinkIndex]);
-
-                orderItems.add(drinkItem);
-                totalCost += drinkItem.totalPrice;
-
-                System.out.println();
-                System.out.printf("You've added %d %s to your order for Php. %.2f%n",
-                        drinkQuantity, DRINK_NAMES[drinkIndex], drinkItem.totalPrice);
-            } else {
-                System.out.println();
-                System.out.println("Drink order canceled.");
-            }
-        } else {
-            System.out.println("Drink order canceled.");
-        }
-    }
-
-    // Added method to avoid recursion issues
-    private void addTakoyakiToOrder(int flavorIndex) {
-        String flavor = TAKOYAKI_FLAVORS[flavorIndex];
-        double price = TAKOYAKI_PRICES[flavorIndex];
-
-        System.out.println("You selected " + flavor + " Takoyaki.");
-        System.out.println();
-        System.out.print("Order Quantity: ");
-        int orderQuantity = getIntInput(1, 100);
-
-        OrderItem item = new OrderItem(flavor, orderQuantity, price);
-        orderItems.add(item);
-        totalCost += item.totalPrice;
-
-        System.out.printf("Total cost for %s: Php. %.2f Added to Order%n",
-                flavor, item.totalPrice);
     }
 
     private void displayCurrentOrder() {
@@ -225,22 +169,24 @@ public class TakoyakiOrderingSystem {
             System.out.println("Your order is empty. Nothing to pay for.");
             return;
         }
-
-        // Display the final order
         displayCurrentOrder();
-
-        // Process payment
         System.out.println("\n--- PAYMENT ---");
-        System.out.printf("Total Amount Due: Php. %.2f%n", totalCost);
-
-        double payment = getDoubleInput("Enter payment amount: ", totalCost, 10000.0);
+        System.out.printf("Total Amount Due: Php. %.2f\n", totalCost);
+        double payment = getDoubleInput("Enter payment amount: ", totalCost, MAX_PAYMENT);
         double change = payment - totalCost;
-
-        System.out.printf("Payment received: Php. %.2f%n", payment);
-        System.out.printf("Change: Php. %.2f%n", change);
-
-        // Print receipt
+        System.out.printf("Payment received: Php. %.2f\n", payment);
+        System.out.printf("Change: Php. %.2f\n", change);
         printReceipt(payment, change);
+        // Ask if user wants to order again
+        String again = getYesNoInput("Would you like to place another order? (Y/N): ");
+        if (again.equals("Y")) {
+            orderItems.clear();
+            totalCost = 0.0;
+            displayMenu();
+            orderTakoyaki(0); // Start new order (index is not used in new method)
+        } else {
+            System.out.println("Thank you for using GELO'S TAKOYAKI Ordering System!");
+        }
     }
 
     private void printReceipt(double payment, double change) {
@@ -248,19 +194,21 @@ public class TakoyakiOrderingSystem {
         System.out.println("              GELO'S TAKOYAKI             ");
         System.out.println("                 RECEIPT                  ");
         System.out.println("+=======================================+");
-        System.out.println("Date: May 7, 2025");
+        // Use current date
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM d, yyyy"));
+        System.out.println("Date: " + date);
         System.out.println("+=======================================+");
 
         for (OrderItem item : orderItems) {
-            System.out.printf("%s%n", item);
+            System.out.printf("%s\n", item);
         }
 
         System.out.println("+=======================================+");
-        System.out.printf("SUBTOTAL:           Php. %.2f%n", totalCost);
+        System.out.printf("SUBTOTAL:           Php. %.2f\n", totalCost);
         System.out.println("+=======================================+");
-        System.out.printf("TOTAL:              Php. %.2f%n", totalCost);
-        System.out.printf("PAYMENT:            Php. %.2f%n", payment);
-        System.out.printf("CHANGE:             Php. %.2f%n", change);
+        System.out.printf("TOTAL:              Php. %.2f\n", totalCost);
+        System.out.printf("PAYMENT:            Php. %.2f\n", payment);
+        System.out.printf("CHANGE:             Php. %.2f\n", change);
         System.out.println("+=======================================+");
         System.out.println("          Thank you for your order!      ");
         System.out.println("           Please come again soon!       ");
