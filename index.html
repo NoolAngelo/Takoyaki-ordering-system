@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gelo's Takoyaki - Professional POS System</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <i class="fas fa-circle"></i>
+            <h1>Gelo's Takoyaki</h1>
+            <span class="version">Professional POS v2.0</span>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-outline" onclick="viewStockLevels()">
+              <i class="fas fa-boxes"></i> Stock Levels
+            </button>
+            <button class="btn btn-outline" onclick="showSettings()">
+              <i class="fas fa-cog"></i> Settings
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Welcome Screen -->
+      <div id="welcomeScreen" class="welcome-screen">
+        <div class="welcome-content">
+          <div class="welcome-logo">
+            <i class="fas fa-circle"></i>
+            <h1>Welcome to Gelo's Takoyaki</h1>
+            <p>Professional Point of Sale System</p>
+          </div>
+          <div class="welcome-actions">
+            <button class="btn btn-primary btn-lg" onclick="startOrdering()">
+              <i class="fas fa-shopping-cart"></i> Start New Order
+            </button>
+            <button class="btn btn-secondary btn-lg" onclick="viewReports()">
+              <i class="fas fa-chart-bar"></i> View Reports
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main POS Interface -->
+      <div id="posInterface" class="pos-interface hidden">
+        <div class="pos-grid">
+          <!-- Menu Section -->
+          <div class="menu-section">
+            <div class="section-header">
+              <h2><i class="fas fa-utensils"></i> Menu</h2>
+              <div class="menu-filters">
+                <button class="filter-btn active" data-category="all">
+                  All
+                </button>
+                <button class="filter-btn" data-category="takoyaki">
+                  Takoyaki
+                </button>
+                <button class="filter-btn" data-category="combo">Combos</button>
+                <button class="filter-btn" data-category="drinks">
+                  Drinks
+                </button>
+              </div>
+            </div>
+
+            <div class="menu-grid" id="menuGrid">
+              <!-- Menu items will be dynamically generated -->
+            </div>
+          </div>
+
+          <!-- Order Section -->
+          <div class="order-section">
+            <div class="section-header">
+              <h2><i class="fas fa-receipt"></i> Current Order</h2>
+              <button class="btn btn-sm btn-outline" onclick="clearOrder()">
+                <i class="fas fa-trash"></i> Clear
+              </button>
+            </div>
+
+            <div class="order-items" id="orderItems">
+              <div class="empty-order">
+                <i class="fas fa-shopping-cart"></i>
+                <p>No items in order</p>
+              </div>
+            </div>
+
+            <div class="order-summary">
+              <div class="summary-line">
+                <span>Subtotal:</span>
+                <span id="subtotal">₱0.00</span>
+              </div>
+              <div class="summary-line discount-line hidden" id="discountLine">
+                <span>Discount (<span id="discountCodeDisplay"></span>):</span>
+                <span id="discountAmount">-₱0.00</span>
+              </div>
+              <div class="summary-line total">
+                <span>Total:</span>
+                <span id="total">₱0.00</span>
+              </div>
+            </div>
+
+            <div class="order-actions">
+              <button
+                class="btn btn-outline btn-block"
+                onclick="applyDiscount()"
+              >
+                <i class="fas fa-percent"></i> Apply Discount
+              </button>
+              <button
+                class="btn btn-success btn-block btn-lg"
+                onclick="checkout()"
+                id="checkoutBtn"
+                disabled
+              >
+                <i class="fas fa-credit-card"></i> Checkout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Information Modal -->
+    <div id="customerModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2><i class="fas fa-user"></i> Customer Information</h2>
+          <button class="close" onclick="closeModal('customerModal')">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Would you like to provide your information for better service and
+            exclusive offers?
+          </p>
+          <form id="customerForm">
+            <div class="form-group">
+              <label for="customerName">Name:</label>
+              <input
+                type="text"
+                id="customerName"
+                name="name"
+                placeholder="Enter your name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="customerPhone">Phone Number:</label>
+              <input
+                type="tel"
+                id="customerPhone"
+                name="phone"
+                placeholder="Enter your phone number"
+              />
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="isFirstTime" name="firstTime" />
+                <span class="checkmark"></span>
+                This is my first time ordering from Gelo's Takoyaki
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="skipCustomerInfo()">
+            Skip
+          </button>
+          <button class="btn btn-primary" onclick="saveCustomerInfo()">
+            Save Information
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discount Modal -->
+    <div id="discountModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2><i class="fas fa-percent"></i> Apply Discount</h2>
+          <button class="close" onclick="closeModal('discountModal')">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="discount-codes">
+            <h3>Available Discount Codes:</h3>
+            <div class="discount-options">
+              <div class="discount-card" onclick="selectDiscount('STUDENT10')">
+                <h4>STUDENT10</h4>
+                <p>10% off for students</p>
+              </div>
+              <div class="discount-card" onclick="selectDiscount('SENIOR15')">
+                <h4>SENIOR15</h4>
+                <p>15% off for senior citizens</p>
+              </div>
+              <div class="discount-card" onclick="selectDiscount('FIRST20')">
+                <h4>FIRST20</h4>
+                <p>20% off for first-time customers</p>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="discountCode">Or enter discount code:</label>
+            <input
+              type="text"
+              id="discountCode"
+              placeholder="Enter discount code"
+              style="text-transform: uppercase"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal('discountModal')">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="applyDiscountCode()">
+            Apply Discount
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2><i class="fas fa-credit-card"></i> Payment</h2>
+        </div>
+        <div class="modal-body">
+          <div class="payment-summary">
+            <h3>Order Summary</h3>
+            <div id="paymentOrderSummary"></div>
+            <div class="payment-total">
+              <strong
+                >Total Amount Due: <span id="paymentTotal">₱0.00</span></strong
+              >
+            </div>
+          </div>
+          <div class="payment-methods">
+            <h3>Payment Method</h3>
+            <div class="payment-options">
+              <button class="payment-btn active" data-method="cash">
+                <i class="fas fa-money-bill-wave"></i> Cash
+              </button>
+              <button class="payment-btn" data-method="card">
+                <i class="fas fa-credit-card"></i> Card
+              </button>
+              <button class="payment-btn" data-method="gcash">
+                <i class="fas fa-mobile-alt"></i> GCash
+              </button>
+            </div>
+          </div>
+          <div class="payment-input" id="cashPayment">
+            <div class="form-group">
+              <label for="paymentAmount">Payment Amount:</label>
+              <input
+                type="number"
+                id="paymentAmount"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+              />
+            </div>
+            <div class="change-display hidden" id="changeDisplay">
+              <div class="change-amount">
+                <span>Change: </span>
+                <span id="changeAmount">₱0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal('paymentModal')">
+            Cancel
+          </button>
+          <button
+            class="btn btn-success"
+            onclick="processPayment()"
+            id="processPaymentBtn"
+          >
+            Process Payment
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal">
+      <div class="modal-content receipt-modal">
+        <div class="modal-header">
+          <h2><i class="fas fa-receipt"></i> Receipt</h2>
+          <button class="close" onclick="closeModal('receiptModal')">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="receipt" id="receiptContent">
+            <!-- Receipt content will be generated dynamically -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="printReceipt()">
+            <i class="fas fa-print"></i> Print Receipt
+          </button>
+          <button class="btn btn-primary" onclick="newOrder()">
+            <i class="fas fa-plus"></i> New Order
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Levels Modal -->
+    <div id="stockModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2><i class="fas fa-boxes"></i> Stock Levels</h2>
+          <button class="close" onclick="closeModal('stockModal')">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="stockLevels">
+            <!-- Stock levels will be generated dynamically -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="closeModal('stockModal')">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+      <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Processing...</p>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
