@@ -20,17 +20,14 @@ fi
 
 # Compile the Java file
 echo "🔨 Compiling TakoyakiOrderingSystem.java..."
-javac TakoyakiOrderingSystem.java
-
-# Check if compilation was successful
-if [ $? -eq 0 ]; then
+if javac TakoyakiOrderingSystem.java; then
     echo "✅ Compilation successful!"
     echo ""
     echo "🚀 Starting Gelo's Takoyaki Ordering System..."
     echo "Features: Order Management | Discounts | Combos | Inventory | Customer Info"
     echo ""
     echo "=================================================="
-    
+
     # Run the application
     java TakoyakiOrderingSystem
 else

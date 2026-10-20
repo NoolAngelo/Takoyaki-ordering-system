@@ -18,12 +18,6 @@ fi
 
 # Check if other required files exist
 echo "📋 Checking required files..."
-if [ -f "index.html" ]; then
-    echo "   ✅ index.html found"
-else
-    echo "   ❌ index.html missing"
-fi
-
 if [ -f "styles.css" ]; then
     echo "   ✅ styles.css found"
 else

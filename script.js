@@ -266,8 +266,8 @@ class TakoyakiPOS {
                     <span class="stock">Stock: ${item.stock}</span>
                     ${stockWarning}
                     ${outOfStock}
-                    <button class="btn btn-sm btn-primary add-to-order" 
-                            onclick="pos.addToOrder(${item.id})" 
+                    <button class="btn btn-sm btn-primary add-to-order"
+                            onclick="pos.addToOrder(${item.id})"
                             ${item.stock === 0 ? "disabled" : ""}>
                         <i class="fas fa-plus"></i> Add
                     </button>
@@ -399,7 +399,7 @@ class TakoyakiPOS {
                     </button>
                 </div>
             </div>
-        `
+        `,
       )
       .join("");
 
@@ -409,7 +409,7 @@ class TakoyakiPOS {
   updateTotals() {
     const subtotal = this.currentOrder.reduce(
       (sum, item) => sum + item.totalPrice,
-      0
+      0,
     );
     let total = subtotal;
 
@@ -422,9 +422,8 @@ class TakoyakiPOS {
       document.getElementById("discountLine").classList.remove("hidden");
       document.getElementById("discountCodeDisplay").textContent =
         this.appliedDiscount.code;
-      document.getElementById(
-        "discountAmount"
-      ).textContent = `-₱${discountAmount.toFixed(2)}`;
+      document.getElementById("discountAmount").textContent =
+        `-₱${discountAmount.toFixed(2)}`;
     } else {
       document.getElementById("discountLine").classList.add("hidden");
     }
@@ -470,7 +469,7 @@ class TakoyakiPOS {
     if (code === "FIRST20" && (!this.customer || !this.customer.isFirstTime)) {
       this.showToast(
         "FIRST20 discount is only available for first-time customers!",
-        "error"
+        "error",
       );
       return;
     }
@@ -500,7 +499,7 @@ class TakoyakiPOS {
   getOrderTotal() {
     const subtotal = this.currentOrder.reduce(
       (sum, item) => sum + item.totalPrice,
-      0
+      0,
     );
     let total = subtotal;
 
@@ -524,7 +523,6 @@ class TakoyakiPOS {
 
   processPayment() {
     const total = this.getOrderTotal();
-    let isValidPayment = false;
 
     if (this.currentPaymentMethod === "cash") {
       const paymentAmount =
@@ -533,15 +531,9 @@ class TakoyakiPOS {
         this.showToast("Insufficient payment amount!", "error");
         return;
       }
-      isValidPayment = true;
-    } else {
-      // For card and GCash, assume payment is successful
-      isValidPayment = true;
     }
 
-    if (isValidPayment) {
-      this.completeOrder();
-    }
+    this.completeOrder();
   }
 
   completeOrder() {
@@ -552,7 +544,7 @@ class TakoyakiPOS {
       // Update stock levels
       this.currentOrder.forEach((orderItem) => {
         const menuItem = this.menuItems.find(
-          (item) => item.id === orderItem.id
+          (item) => item.id === orderItem.id,
         );
         if (menuItem) {
           menuItem.stock -= orderItem.quantity;
@@ -568,7 +560,7 @@ class TakoyakiPOS {
         paymentMethod: this.currentPaymentMethod,
         subtotal: this.currentOrder.reduce(
           (sum, item) => sum + item.totalPrice,
-          0
+          0,
         ),
         total: this.getOrderTotal(),
         timestamp: new Date().toISOString(),
@@ -601,7 +593,7 @@ class TakoyakiPOS {
                 <p>Professional POS System</p>
                 <p>Thank you for your order!</p>
             </div>
-            
+
             <div class="receipt-details">
                 <div class="receipt-line">
                     <span>Order #:</span>
@@ -626,7 +618,7 @@ class TakoyakiPOS {
                     <span>${order.paymentMethod.toUpperCase()}</span>
                 </div>
             </div>
-            
+
             <div class="receipt-items">
                 <h3>Items Ordered:</h3>
                 ${order.items
@@ -642,11 +634,11 @@ class TakoyakiPOS {
                             <span>₱${item.totalPrice.toFixed(2)}</span>
                         </div>
                     </div>
-                `
+                `,
                   )
                   .join("")}
             </div>
-            
+
             <div class="receipt-totals">
                 <div class="receipt-line">
                     <span>Subtotal:</span>
@@ -684,7 +676,7 @@ class TakoyakiPOS {
                     : ""
                 }
             </div>
-            
+
             <div class="receipt-footer">
                 <p>Thank you for choosing Gelo's Takoyaki!</p>
                 <p>Please come again!</p>
@@ -705,7 +697,7 @@ class TakoyakiPOS {
   saveOrderHistory() {
     localStorage.setItem(
       "takoyakiOrderHistory",
-      JSON.stringify(this.orderHistory)
+      JSON.stringify(this.orderHistory),
     );
     localStorage.setItem("takoyakiOrderCounter", this.orderCounter.toString());
   }
@@ -844,7 +836,7 @@ function checkout() {
             <span>${item.name} x${item.quantity}</span>
             <span>₱${item.totalPrice.toFixed(2)}</span>
         </div>
-    `
+    `,
     )
     .join("");
 
@@ -905,7 +897,7 @@ function viewStockLevels() {
                         : ""
                     }
                 </div>
-            `
+            `,
               )
               .join("")}
         </div>
@@ -925,16 +917,16 @@ function viewReports() {
 
   const totalRevenue = pos.orderHistory.reduce(
     (sum, order) => sum + order.total,
-    0
+    0,
   );
   const totalOrders = pos.orderHistory.length;
   const averageOrder = totalRevenue / totalOrders;
 
   pos.showToast(
     `Total Orders: ${totalOrders} | Revenue: ₱${totalRevenue.toFixed(
-      2
+      2,
     )} | Average: ₱${averageOrder.toFixed(2)}`,
-    "info"
+    "info",
   );
 }
 
