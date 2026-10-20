@@ -13,9 +13,9 @@ body {
     "Segoe UI",
     Roboto,
     sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f3efe8;
   min-height: 100vh;
-  color: #333;
+  color: #2d2d2d;
   line-height: 1.6;
 }
 
@@ -27,9 +27,8 @@ body {
 
 /* Header */
 .header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  box-shadow: 0 1px 0 #ddd6cc;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -50,17 +49,7 @@ body {
 
 .logo i {
   font-size: 2rem;
-  color: #667eea;
-  animation: rotate 10s linear infinite;
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  color: #c94c3b;
 }
 
 .logo h1 {
@@ -70,10 +59,10 @@ body {
 }
 
 .version {
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: #2d2d2d;
   color: white;
   padding: 0.25rem 0.5rem;
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -86,8 +75,8 @@ body {
 /* Buttons */
 .btn {
   padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -95,44 +84,43 @@ body {
   align-items: center;
   gap: 0.5rem;
   text-decoration: none;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  filter: brightness(0.95);
 }
 
 .btn:active {
-  transform: translateY(0);
+  filter: brightness(0.9);
 }
 
 .btn-primary {
-  background: linear-gradient(45deg, #667eea, #764ba2);
+  background: #c94c3b;
   color: white;
 }
 
 .btn-secondary {
-  background: linear-gradient(45deg, #4facfe, #00f2fe);
+  background: #2f6f68;
   color: white;
 }
 
 .btn-success {
-  background: linear-gradient(45deg, #11998e, #38ef7d);
+  background: #2f6f68;
   color: white;
 }
 
 .btn-outline {
   background: transparent;
-  border: 2px solid #e2e8f0;
-  color: #4a5568;
+  border-color: #d6d0c7;
+  color: #4a4038;
 }
 
 .btn-outline:hover {
   background: #f7fafc;
-  border-color: #cbd5e0;
+  border-color: #b7aea3;
 }
 
 .btn-sm {
@@ -163,7 +151,7 @@ body {
   justify-content: center;
   min-height: calc(100vh - 80px);
   text-align: center;
-  color: white;
+  color: #2d2d2d;
 }
 
 .welcome-content {
@@ -179,27 +167,14 @@ body {
   font-size: 4rem;
   margin-bottom: 1rem;
   display: block;
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  color: #c94c3b;
 }
 
 .welcome-logo h1 {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  background: linear-gradient(45deg, #fff, #f0f0f0);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #2d2d2d;
 }
 
 .welcome-logo p {
@@ -229,8 +204,8 @@ body {
 .menu-section,
 .order-section {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(45, 45, 45, 0.08);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -238,7 +213,7 @@ body {
 
 .section-header {
   padding: 1.5rem;
-  background: linear-gradient(45deg, #f8fafc, #e2e8f0);
+  background: #faf8f4;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
@@ -264,7 +239,7 @@ body {
   padding: 0.5rem 1rem;
   border: 1px solid #e2e8f0;
   background: white;
-  border-radius: 20px;
+  border-radius: 4px;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -272,9 +247,9 @@ body {
 
 .filter-btn:hover,
 .filter-btn.active {
-  background: #667eea;
+  background: #2d2d2d;
   color: white;
-  border-color: #667eea;
+  border-color: #2d2d2d;
 }
 
 /* Menu Grid */
@@ -289,8 +264,8 @@ body {
 
 .menu-item {
   background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   padding: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -298,9 +273,7 @@ body {
 }
 
 .menu-item:hover {
-  border-color: #667eea;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  border-color: #c94c3b;
 }
 
 .menu-item.out-of-stock {
@@ -329,7 +302,7 @@ body {
 
 .item-price {
   font-weight: 700;
-  color: #667eea;
+  color: #c94c3b;
   font-size: 1.125rem;
 }
 
@@ -337,7 +310,7 @@ body {
   background: #e2e8f0;
   color: #4a5568;
   padding: 0.25rem 0.5rem;
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: 0.75rem;
   margin-bottom: 0.5rem;
   display: inline-block;
