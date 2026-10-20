@@ -8,6 +8,16 @@ A small restaurant ordering system with two interfaces:
 The web app supports menu browsing, stock tracking, discounts, customer details,
 checkout, receipts, and local order history.
 
+## Screenshots
+
+### Menu and empty order
+
+![Menu and empty order](s1.png)
+
+### Combo menu and current order
+
+![Combo menu and current order](s2.png)
+
 ## Run the Web App
 
 Open `index.html` directly, or start a local server:
